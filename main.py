@@ -2,18 +2,16 @@
 # author: Tomas Horvath
 # email: Tomas@horvath.site 
 
-
 import requests
 from bs4 import BeautifulSoup
 import csv
 import sys
 
-def ziskej_seznam_lokaci():
+def ziskej_seznam_lokaci(odkaz):
     """
-    Na základě odkazu zadaného uživatelem stáhne stránku a extrahuje kódy okrsků,
+    Na základě odkazu (URL) stáhne stránku a extrahuje kódy okrsků,
     jejich názvy a relativní odkazy. Výsledek vrací jako list n-tic (kod, nazev, odkaz).
     """
-    odkaz = input("Vložte odkaz na volební výsledky z požadovaného okresu: ").strip()
     soup = ziskej_soup(odkaz)
 
     cisla = ziskej_cisla_lokaci(soup)
@@ -22,17 +20,17 @@ def ziskej_seznam_lokaci():
 
     return list(zip(cisla, nazvy, odkazy))
 
-def zapis_do_csv(seznam_lokaci):
+def zapis_do_csv(seznam_lokaci, nazev_souboru):
     """
-    Očekává seznam lokací (n-tice: kód, název, odkaz).
-    Od uživatele načítá název souboru a vytvoří soubor CSV s hlavičkou.
-    Poté stahuje výsledky voleb pro každou lokaci a zapisuje je do nového řádku v CSV.
+    Očekává seznam lokací (n-tice: kód, název, odkaz) a název výstupního souboru (bez přípony).
+    Vytvoří CSV s hlavičkou a stahuje výsledky voleb pro každou lokaci,
+    které ukládá do nového řádku v CSV.
     """
     if not seznam_lokaci:
         print("Nebyla nalezena žádná lokace, ukončuji program.")
         sys.exit()
 
-    nazev_souboru = input("Zadejte název vašeho výstupního souboru (bez přípony .csv): ").strip()
+    # poskládáme URL pro stažení hlavičky (vezmeme první lokaci v seznamu)
     prvni_odkaz = "https://www.volby.cz/pls/ps2017nss/" + seznam_lokaci[0][2]
     hlavicka_soup = ziskej_soup(prvni_odkaz)
     hlavicka_csv = vytvor_csv_hlavicku(hlavicka_soup)
@@ -175,9 +173,23 @@ def ziskej_hlasy_stran(soup_obj):
     return hlasy
 
 def main():
-    """Hlavní funkce. Načítá seznam okrsků (jako n-tice) a rovnou ukládá výsledky do CSV."""
-    lokace = ziskej_seznam_lokaci()
-    zapis_do_csv(lokace)
+    """
+    Hlavní funkce.
+    Očekává dva argumenty z příkazové řádky:
+      1) URL odkaz
+      2) název souboru (bez přípony .csv)
+    Spustíte např. takto:
+        python main.py "https://www.volby.cz/..." "moje_vysledky"
+    """
+    if len(sys.argv) != 3:
+        print("Použití: python main.py [URL] [název_souboru_bez_přípony]")
+        sys.exit(1)
+
+    odkaz = sys.argv[1]
+    nazev_souboru = sys.argv[2]
+
+    lokace = ziskej_seznam_lokaci(odkaz)
+    zapis_do_csv(lokace, nazev_souboru)
 
 if __name__ == "__main__":
     main()
