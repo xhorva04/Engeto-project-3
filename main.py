@@ -1,3 +1,8 @@
+# Treti projekt do Engeto Online Python Akademie
+# author: Tomas Horvath
+# email: Tomas@horvath.site 
+
+
 import requests
 from bs4 import BeautifulSoup
 import csv
