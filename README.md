@@ -1,6 +1,6 @@
 # Engeto-project-3
 
-Poslední projekt Engeto Python akademie (online) s daty
+Poslední projekt Engeto Python akademie (online) s daty.
 
 
 ## Cíl projektu
